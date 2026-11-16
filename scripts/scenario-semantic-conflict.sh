@@ -39,6 +39,6 @@ Both pull requests are green on their own:
   A  $PR_A
   B  $PR_B
 
-Enqueue A first, then B, from the Yardmaster dashboard (Pull requests).
+Enqueue A first, then B, from the Yardmaster dashboard (Queue, Add pull requests).
 Expected: A merges. B fails validation and stays open. main stays green.
 DONE
