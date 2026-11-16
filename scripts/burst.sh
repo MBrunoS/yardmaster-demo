@@ -6,7 +6,7 @@
 # another. Commits carry an Assisted-by trailer naming this script; Yardmaster
 # records such pull requests as agent-authored.
 #
-# Enqueue them together from the dashboard (Pull requests, select all, add).
+# Enqueue them together from the dashboard (Queue, Add pull requests).
 # The queue is serial: expect about 45 seconds per pull request.
 
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
@@ -52,7 +52,7 @@ done
 cat <<DONE
 
 $COUNT pull requests are open and green.
-Enqueue them together from the Yardmaster dashboard (Pull requests).
+Enqueue them together from the Yardmaster dashboard (Queue, Add pull requests).
 Expected: they merge one at a time in the order they were enqueued, and each
 waiting pull request's Yardmaster check shows how many are ahead of it.
 DONE
