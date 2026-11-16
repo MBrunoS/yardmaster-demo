@@ -1,0 +1,67 @@
+name: Yardmaster candidate validation
+
+# Yardmaster workflow contract version 1. Yardmaster dispatches this workflow
+# against the merge candidate it built and merges only if the run succeeds.
+# https://github.com/MBrunoS/yardmaster/blob/main/docs/merge-queue.md#validation-workflow-contract
+on:
+  workflow_dispatch:
+    inputs:
+      attempt_id:
+        description: Yardmaster merge-attempt ID
+        required: true
+        type: string
+      pull_request_number:
+        description: Pull request number
+        required: true
+        type: string
+      expected_head_sha:
+        description: Queued pull-request head SHA
+        required: true
+        type: string
+      expected_base_sha:
+        description: Target-branch SHA the candidate was built on
+        required: true
+        type: string
+      candidate_sha:
+        description: Exact merge candidate SHA
+        required: true
+        type: string
+      contract_version:
+        description: Yardmaster workflow contract version
+        required: true
+        type: string
+
+run-name: "Validate #${{ inputs.pull_request_number }} at ${{ inputs.candidate_sha }}"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate exact candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          persist-credentials: false
+      - name: Verify workflow contract
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          CONTRACT_VERSION: ${{ inputs.contract_version }}
+        run: |
+          test "$CONTRACT_VERSION" = "1"
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Type check
+        run: pnpm typecheck
+      # Runs even when the type check fails, so a broken candidate shows its failing tests too.
+      - name: Test
+        if: ${{ !cancelled() }}
+        run: pnpm test
