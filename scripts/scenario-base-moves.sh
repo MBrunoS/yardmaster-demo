@@ -28,7 +28,7 @@ PR="$(open_pr "$BRANCH" "Add receipt line formatting" \
 wait_for_green_ci "$PR"
 
 echo
-echo "Enqueue it now from the Yardmaster dashboard (Pull requests): $PR"
+echo "Enqueue it now from the Yardmaster dashboard (Queue, Add pull requests): $PR"
 echo "Waiting for Yardmaster to report Validating..."
 
 check_run_title() {
@@ -70,6 +70,7 @@ Merged. main is at $MERGED_SHA, a merge of:
   the direct push    $PUSH_SHA
   the pull request   $HEAD_SHA
 
-In the dashboard, History shows a replaced attempt followed by a successful
-one for this item, and the merged SHA equals the validated candidate SHA.
+The repository's Actions page shows two validation runs for this pull
+request: one per attempt. In the dashboard, History shows the merged SHA,
+which equals the second candidate's SHA.
 DONE
