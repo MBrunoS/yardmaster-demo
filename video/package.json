@@ -1,0 +1,24 @@
+{
+  "name": "yardmaster-demo-video",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Scripted Remotion videos of the three Yardmaster demo flows",
+  "type": "module",
+  "packageManager": "pnpm@11.14.0",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render burst out/burst.mp4 && remotion render semantic-conflict out/semantic-conflict.mp4 && remotion render base-moves out/base-moves.mp4",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.544",
+    "@remotion/google-fonts": "4.0.544",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.544"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "typescript": "5.9.3"
+  }
+}
