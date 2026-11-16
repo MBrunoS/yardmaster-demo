@@ -1,4 +1,4 @@
-import { applyDiscount } from "./discount";
+import { applyPercentDiscount } from "./discount";
 import { roundMoney } from "./money";
 import { taxFor } from "./tax";
 
@@ -28,7 +28,7 @@ export function subtotalOf(items: readonly LineItem[]): number {
 /** Prices an order: subtotal, then discount, then tax on the discounted amount. */
 export function priceOrder(order: Order): PricedOrder {
   const subtotal = subtotalOf(order.items);
-  const discounted = applyDiscount(subtotal, order.discountPercent ?? 0);
+  const discounted = applyPercentDiscount(subtotal, order.discountPercent ?? 0);
   const tax = taxFor(discounted, order.taxRate);
   return {
     subtotal,

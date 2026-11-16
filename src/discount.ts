@@ -1,7 +1,7 @@
 import { roundMoney } from "./money";
 
 /** Takes a percentage off a subtotal. `percent` is between 0 and 100. */
-export function applyDiscount(subtotal: number, percent: number): number {
+export function applyPercentDiscount(subtotal: number, percent: number): number {
   if (percent < 0 || percent > 100) {
     throw new RangeError(`Discount percent must be between 0 and 100, got ${percent}`);
   }
