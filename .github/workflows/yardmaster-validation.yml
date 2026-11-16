@@ -45,6 +45,8 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.candidate_sha }}
+          # The candidate and its parents, so the pull-request head's message is readable below.
+          fetch-depth: 2
           persist-credentials: false
       - name: Verify workflow contract
         env:
@@ -53,6 +55,15 @@ jobs:
         run: |
           test "$CONTRACT_VERSION" = "1"
           test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+      # Demo only: a pull request whose head commit message contains [slow-demo] is held long
+      # enough to move `main` while it validates (scripts/scenario-base-moves.sh).
+      - name: Hold the run for the base-moves scenario
+        env:
+          HEAD_SHA: ${{ inputs.expected_head_sha }}
+        run: |
+          if git log -1 --format=%B "$HEAD_SHA" | grep -qF '[slow-demo]'; then
+            sleep 45
+          fi
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v6
         with:
