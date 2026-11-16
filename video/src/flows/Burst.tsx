@@ -1,108 +1,42 @@
-import { Caption, MainTrack, PrCard, type PullRequest, Stage, type Step } from "../components/ui";
+import type { Shot } from "../components/footage";
 import { Flow, flowFrames } from "./Flow";
 
-const TITLES = [
-  "Add tax rounding for JPY",
-  "Add bulk discount tiers",
-  "Add free shipping threshold",
-  "Add coupon code validation",
-  "Add EUR price formatting",
-  "Add gift wrap surcharge",
+const d = "dashboard" as const;
+const g = "github" as const;
+
+const SHOTS: Shot[] = [
+  { frame: "01", hold: 45, source: d, caption: "Six pull requests arrive at once. All six are selected, in order." },
+  { frame: "02", hold: 50, source: d },
+  { frame: "03", hold: 40, source: d, caption: "The first becomes active. The other five wait in line." },
+  { frame: "04", hold: 36, source: d },
+  { frame: "05", hold: 36, source: d, caption: "One exact candidate is validated at a time." },
+  { frame: "06", hold: 36, source: d },
+  { frame: "07", hold: 36, source: d },
+  { frame: "08", hold: 36, source: d },
+  { frame: "09", hold: 36, source: d, caption: "Each merge moves main, and the next candidate is built on it." },
+  { frame: "10", hold: 36, source: d },
+  { frame: "11", hold: 36, source: d },
+  { frame: "12", hold: 60, source: d, caption: "GitHub never started the fourth validation run, so that item was cancelled and re-queued." },
+  { frame: "13", hold: 36, source: d },
+  { frame: "14", hold: 36, source: d, caption: "The queue keeps moving." },
+  { frame: "15", hold: 36, source: d },
+  { frame: "16", hold: 36, source: d },
+  { frame: "17", hold: 36, source: d },
+  { frame: "18", hold: 36, source: d },
+  { frame: "19", hold: 50, source: d, caption: "The queue is empty. All six are merged." },
+  { frame: "20", hold: 70, source: d, caption: "History records every outcome and the commit that shipped." },
+  { frame: "21", hold: 80, source: g, caption: "On GitHub: one merge per pull request, each with a green check." },
+  { frame: "22", hold: 60, source: g },
 ];
-const SHAS = ["4f2a9c1", "81d07be", "c93e5a4", "2b6f1d8", "e07a3c5", "5a9d4f2"];
 
-const ENQUEUE = 110;
-const FIRST = 130;
-const PER_ITEM = 52;
-const startOf = (index: number) => FIRST + index * PER_ITEM;
-const mergedAt = (index: number) => startOf(index) + 46;
-
-function steps(index: number): Step[] {
-  const queued: Step[] = [];
-  // The count drops each time a pull request ahead of this one merges.
-  for (let ahead = index; ahead >= 1; ahead--) {
-    queued.push({
-      at: ahead === index ? ENQUEUE + index * 3 : mergedAt(index - ahead - 1),
-      label: `Queued (${ahead} ahead)`,
-      tone: "muted",
-    });
-  }
-  const start = startOf(index);
-  return [
-    ...queued,
-    { at: start, label: "Preparing", tone: "progress" },
-    { at: start + 10, label: "Validating", tone: "progress" },
-    { at: start + 38, label: "Merge pending", tone: "progress" },
-    { at: start + 46, label: "Merged", tone: "success" },
-  ];
-}
-
-const PULL_REQUESTS: PullRequest[] = TITLES.map((title, index) => ({
-  appearAt: 10 + index * 8,
-  mergedAt: mergedAt(index),
-  number: 5 + index,
-  title,
-  yardmaster: steps(index),
-}));
-
-const TERMINAL_FRAMES = 135;
-const STAGE_FRAMES = 500;
-export const BURST_FRAMES = flowFrames(TERMINAL_FRAMES, STAGE_FRAMES);
-
-function BurstStage() {
-  return (
-    <Stage scenario="Burst">
-      <div
-        style={{
-          position: "absolute",
-          top: 130,
-          left: 96,
-          width: 1120,
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-        }}
-      >
-        {PULL_REQUESTS.map((pr) => (
-          <PrCard key={pr.number} pr={pr} compact />
-        ))}
-      </div>
-      <MainTrack
-        style={{ top: 130, left: 1320 }}
-        commits={[
-          { at: 0, label: "baseline", sha: "b744c08" },
-          ...TITLES.map((title, index) => ({ at: mergedAt(index), label: title, sha: SHAS[index]! })),
-        ]}
-      />
-      <Caption
-        lines={[
-          { at: 4, text: "Six pull requests from agents arrive at once." },
-          { at: 62, text: "Each one is green on its own." },
-          { at: ENQUEUE, text: "Yardmaster queues them in order." },
-          { at: FIRST + 24, text: "One exact candidate is validated at a time." },
-          { at: startOf(4), text: "What reaches main is the commit that was validated." },
-        ]}
-      />
-    </Stage>
-  );
-}
+export const BURST_FRAMES = flowFrames(SHOTS);
 
 export function Burst() {
   return (
     <Flow
+      flow="burst"
       statement={["Agents open pull requests", "faster than a team can merge them."]}
-      terminal={[
-        { text: "scripts/burst.sh", type: "command", delay: 0 },
-        ...TITLES.map((title, index) => ({
-          text: `Opened #${5 + index}  ${title}`,
-          type: "log" as const,
-          delay: index === 0 ? 10 : 3,
-        })),
-        { text: "6 pull requests are open and green.", type: "success", delay: 10 },
-      ]}
-      terminalFrames={TERMINAL_FRAMES}
-      stage={<BurstStage />}
-      stageFrames={STAGE_FRAMES}
+      shots={SHOTS}
       close="One queue. One validated commit at a time. main stays green."
     />
   );

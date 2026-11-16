@@ -1,18 +1,15 @@
-import type { ReactNode } from "react";
 import { Series } from "remotion";
-import { Close, ScriptRun, Statement } from "../components/scenes";
-import type { TerminalLine } from "../components/remocn/terminal-simulator";
+import { Footage, footageFrames, type Shot } from "../components/footage";
+import { Close, Statement } from "../components/scenes";
 
-export const STATEMENT = 85;
-export const CLOSE = 110;
+const STATEMENT = 85;
+const CLOSE = 110;
 
-/** Every flow has the same shape: statement, script run, the queue at work, close. */
+/** Every flow has the same shape: statement, the real run, close. */
 export function Flow(props: {
+  flow: string;
   statement: readonly string[];
-  terminal: TerminalLine[];
-  terminalFrames: number;
-  stage: ReactNode;
-  stageFrames: number;
+  shots: readonly Shot[];
   close: string;
 }) {
   return (
@@ -20,10 +17,9 @@ export function Flow(props: {
       <Series.Sequence durationInFrames={STATEMENT}>
         <Statement lines={props.statement} />
       </Series.Sequence>
-      <Series.Sequence durationInFrames={props.terminalFrames}>
-        <ScriptRun lines={props.terminal} />
+      <Series.Sequence durationInFrames={footageFrames(props.shots)}>
+        <Footage flow={props.flow} shots={props.shots} />
       </Series.Sequence>
-      <Series.Sequence durationInFrames={props.stageFrames}>{props.stage}</Series.Sequence>
       <Series.Sequence durationInFrames={CLOSE}>
         <Close line={props.close} />
       </Series.Sequence>
@@ -31,6 +27,6 @@ export function Flow(props: {
   );
 }
 
-export function flowFrames(terminalFrames: number, stageFrames: number): number {
-  return STATEMENT + terminalFrames + stageFrames + CLOSE;
+export function flowFrames(shots: readonly Shot[]): number {
+  return STATEMENT + footageFrames(shots) + CLOSE;
 }
